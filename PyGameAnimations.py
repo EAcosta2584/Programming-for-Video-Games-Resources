@@ -26,7 +26,7 @@ down = 'down'
 left = 'left'
 right = 'right'
 
-downleft = 'downleft'
+downLeft = 'downleft'
 downRight = 'downright'
 upLeft = 'upleft'
 upRight = 'upright'
@@ -40,10 +40,24 @@ red = (255, 0, 0)
 green = (0, 255, 0)
 blue = (0, 0, 255)
 
-# Set up the box data structure.
-blueSquare = {'rect':pygame.Rect(300, 300, 50, 50), 'color':blue, 'dir':upRight}
+basicFont = pygame.font.SysFont("magneto", 20)
 
-boxes = [blueSquare]
+myText = "FBI Warning"
+
+text = basicFont.render(myText,True, white, blue)
+
+textRect = text.get_rect()
+
+textRect.centerx  = windowSurface.get_rect().centerx
+textRect.centery = windowSurface.get_rect().centery
+
+# Set up the box data structure.
+blueSquare = {'rect':pygame.Rect(275,275, 50, 50), 'color':blue, 'dir':upRight}
+redRect = {'rect':pygame.Rect(230, 120, 50, 80), 'color': red, 'dir':downRight}
+textBox =
+boxes = [blueSquare, redRect]
+
+
 
 # Run the game loop.
 while True:
@@ -56,9 +70,12 @@ while True:
     # Draw the white background onto the surface.
     windowSurface.fill(white)
 
+    if textRect.centerx > width:
+
+
     for b in boxes:
         # Move the box data structure.
-        if b['dir'] == downleft:
+        if b['dir'] == downLeft:
             b['rect'].left -= movementSpeed
             b['rect'].top += movementSpeed
         if b['dir'] == downRight:
@@ -71,8 +88,35 @@ while True:
             b['rect'].left += movementSpeed
             b['rect'].top -= movementSpeed
 
+        if b['rect'].right > width:
+            if b['dir'] == upRight:
+                b['dir'] = downLeft
+            if b['dir'] == downRight:
+                b['dir'] = upLeft
+
+        if b['rect'].bottom > height:
+            if b['dir'] == downLeft:
+                b['dir'] = upRight
+            if b['dir'] == downRight:
+                b['dir'] = upLeft
+
+        if b['rect'].top < 0:
+            if b['dir'] == upLeft:
+                b['dir'] = downLeft
+            if b['dir'] == upRight:
+                b['dir'] = downRight
+
+        if b['rect'].left < 0:
+            if b['dir'] == downLeft:
+                b['dir'] = downRight
+            if b['dir'] == upLeft:
+                b['dir'] = upRight
+
+
         # Draw the box onto the surface.
         pygame.draw.rect(windowSurface, b['color'], b['rect'])
+
+        windowSurface.blit(text, textRect)
 
     # Draw the window onto the screen.
     pygame.display.update()
