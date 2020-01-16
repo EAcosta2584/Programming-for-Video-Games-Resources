@@ -30,7 +30,10 @@ moveRight = False
 moveUp = False
 moveDown = False
 
-movementSpeed = 6
+shoot = False
+
+movementSpeed = 3
+projectileSpeed = 12
 
 
 # Set up the color variables.
@@ -40,7 +43,8 @@ red = (255, 0, 0)
 green = (0, 255, 0)
 blue = (0, 0, 255)
 
-player = pygame.Rect(300, 100, 50, 50)
+player = pygame.Rect(250, 250, 50, 50)
+projectile = pygame.Rect(player.centerx, player.centery, 10, 10)
 
 # Run the game loop.
 while True:
@@ -49,8 +53,42 @@ while True:
         if event.type == QUIT:
             pygame.quit()
             sys.exit()
+    if event.type == KEYDOWN:
+        if event.key == K_UP or event.key == K_w:
+            moveUp = True
+        if event.key == K_DOWN or event.key == K_s:
+            moveDown = True
+        if event.key == K_LEFT or event.key == K_a:
+            moveLeft = True
+        if event.key == K_RIGHT or event.key == K_d:
+            moveRight = True
+        if event.key == K_SPACE:
+            shoot = True
+    if event.type == KEYUP:
+        if event.key == K_UP or event.key == K_w:
+            moveUp = False
+        if event.key == K_DOWN or event.key == K_s:
+            moveDown = False
+        if event.key == K_LEFT or event.key == K_a:
+            moveLeft = False
+        if event.key == K_RIGHT or event.key == K_d:
+            moveRight = False
+        if event.key == K_ESCAPE:
+            pygame.quit()
+            sys.exit()
+
+    if shoot == True:
+        projectile.top -= projectileSpeed
 
 
+    if moveUp == True:
+        player.top -= movementSpeed
+    if moveDown == True:
+        player.bottom += movementSpeed
+    if moveLeft == True:
+        player.left -= movementSpeed
+    if moveRight == True:
+        player.right += movementSpeed
 
     # Draw the white background onto the surface.
     windowSurface.fill(white)
@@ -58,6 +96,9 @@ while True:
 
     # Draw the player onto the surface.
     pygame.draw.rect(windowSurface, black, player)
+
+    # if projectile.top < player.centery-25:
+    #     pygame.draw.rect(windowSurface, blue, projectile)
 
 
 

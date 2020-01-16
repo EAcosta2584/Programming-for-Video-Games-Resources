@@ -138,4 +138,4 @@ while True:
 
     # Draw the window onto the screen.
     pygame.display.update()
-    time.sleep(.02)
+    time.sleep(.0167)
