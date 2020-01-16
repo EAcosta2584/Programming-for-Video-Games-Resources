@@ -44,7 +44,14 @@ green = (0, 255, 0)
 blue = (0, 0, 255)
 
 player = pygame.Rect(250, 250, 50, 50)
-projectile = pygame.Rect(player.centerx, player.centery, 10, 10)
+
+shots = []
+targets = []
+
+x = 0
+
+for t in range(3):
+    targets.append(pygame.Rect(100 * (t+1), 5, 25, 25))
 
 # Run the game loop.
 while True:
@@ -73,12 +80,11 @@ while True:
             moveLeft = False
         if event.key == K_RIGHT or event.key == K_d:
             moveRight = False
+        if event.key == K_SPACE:
+            shoot = False
         if event.key == K_ESCAPE:
             pygame.quit()
             sys.exit()
-
-    if shoot == True:
-        projectile.top -= projectileSpeed
 
 
     if moveUp == True:
@@ -93,13 +99,27 @@ while True:
     # Draw the white background onto the surface.
     windowSurface.fill(white)
 
+    if shoot == True and (len(shots) < 3 ):
+        shots.append(pygame.Rect(player.centerx - 5, player.centery - 5, 10, 10))
+
+    for i in range(len(shots)):
+        pygame.draw.rect(windowSurface, blue, shots[i])
+        shots[i].top -= projectileSpeed
+        for target in targets[:]:
+            for shot in shots[:]:
+                if shot.bottom < 0:
+                    shots.remove(shot)
+            if shots[i].colliderect(target):
+                targets.remove(target)
+
+
+
 
     # Draw the player onto the surface.
     pygame.draw.rect(windowSurface, black, player)
 
-    # if projectile.top < player.centery-25:
-    #     pygame.draw.rect(windowSurface, blue, projectile)
-
+    for t in range(len(targets)):
+        pygame.draw.rect(windowSurface, red, targets[t])
 
 
     # Draw the window onto the screen.
