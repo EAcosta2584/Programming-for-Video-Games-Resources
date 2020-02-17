@@ -78,6 +78,46 @@ playerImage = pygame.transform.rotate(playerImage, -90)
 
 font = pygame.font.SysFont("none", 24)
 
+def gameOver(score):
+    font = pygame.font.SysFont("none", 90)
+    myText = "Game Over"
+    text = font.render(myText, True, white)
+    textRect = text.get_rect()
+    textRect.centerx = windowSurface.get_rect().centerx
+    textRect.centery = windowSurface.get_rect().centery - 100
+
+    scoreText = "Final Score: " + str(score)
+    text2 = font.render(scoreText, True, white)
+    textRect2 = text2.get_rect()
+    textRect2.centerx = windowSurface.get_rect().centerx
+    textRect2.centery = windowSurface.get_rect().centery + 50
+
+    while True:
+        # Check for events.
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == KEYUP:
+                if event.key == K_ESCAPE:
+                    pygame.quit()
+                    sys.exit()
+
+        # keep the background moving
+        windowSurface.fill(black)
+        windowSurface.blit(background, bg)
+        bg.left -= scrollSpeed
+        if bg.left < -800:
+            bg.left = 0
+
+        # Display game over text and score
+        windowSurface.blit(text, (textRect))
+        windowSurface.blit(text2, (textRect2))
+
+        pygame.display.update()
+        mainClock.tick(30)
+
+
 # Run the game loop.
 while running:
     # Check for events.
@@ -89,6 +129,15 @@ while running:
     # Draw the white background onto the surface.
     windowSurface.fill(black)
 
+    # Draw the background image onto the bg surface.
+    windowSurface.blit(background, bg)
+
+    # Move the background to the left
+    bg.left -= scrollSpeed
+
+    # Before we run out of background, reset the left edge
+    if bg.left < -800:
+        bg.left = 0
 
     if event.type == KEYDOWN:
         if event.key == K_UP or event.key == K_w:
@@ -132,7 +181,9 @@ while running:
 
     # Random set targets on screen and spaces them so they won't overlap
     if len(targets) < maxTargets:
-        targets.append(pygame.Rect(width + 20, random.randint(10, height -10), 20, 20))
+        if targetFrameCounter == 0:
+            targetFrameCounter = 10
+            targets.append(pygame.Rect(width + 20, random.randint(10, height -10), 20, 20))
 
     # Draw targets on screen
     for i in range (len(targets)):
@@ -140,8 +191,18 @@ while running:
         targets[i].left -= movementSpeed
         if targets[i].colliderect(player):
             targets[i].right = 0
-            maxLives -= 1
+            if collisionFrameCounter == 0:
+                collisionFrameCounter = 30
+                maxLives -= 1
 
+    # If hit, flash during invincibility
+    if collisionFrameCounter > 0:
+        if collisionFrameCounter % 3 == 0:
+            playerImage.set_alpha(128)
+        else:
+            playerImage.set_alpha(256)
+    else:
+        playerImage.set_alpha(256)
 
     for target in targets[:]:
         if target.left < - 20:
@@ -149,7 +210,9 @@ while running:
 
     # Add a projectile to the shots list, but limit to three shots at a time
     if shoot == True and (len(shots) < maxShots):
-        shots.append(pygame.Rect(player.centerx - 3, player.centery - 3, 6, 6))
+        if shotFrameCounter == 0:
+            shotFrameCounter = 6
+            shots.append(pygame.Rect(player.centerx - 3, player.centery - 3, 6, 6))
 
     # Draw the shots that have been added to the shots list, and move them up by projectile speed
     for i in range(len(shots)):
@@ -183,10 +246,29 @@ while running:
     text2 = font.render(scoreText, True, white)
     windowSurface.blit(text2, (width-100,0))
 
+    # if out of lives, end game
+    if maxLives == 0:
+        running = False
+        gameOver(score)
 
     # Draw the window onto the screen.
     pygame.display.update()
 
+    #reset movement
+    moveLeft = False
+    moveRight = False
+    moveUp = False
+    moveDown = False
+
+    # Reset our FrameCounters
+    if shotFrameCounter > 0:
+        shotFrameCounter -= 1
+
+    if targetFrameCounter > 0:
+        targetFrameCounter -= 1
+
+    if collisionFrameCounter > 0:
+        collisionFrameCounter -= 1
 
     # Set the framerate of the game.
     mainClock.tick(30)
