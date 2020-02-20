@@ -2,9 +2,10 @@
 # File Name: AddingSound.py
 # Creator Name: Mr. Acosta
 # Date Created: 2-16-2020
-# Date Modified: 2-16-2020
+# Date Modified: 2-18-2020
 #################################################
-# This program will demonstrate adding sound and music
+# This program will demonstrate adding sound to our
+# scrolling space game
 #################################################
 
 import pygame, sys, time, random
@@ -83,8 +84,6 @@ font = pygame.font.SysFont("none", 24)
 # pygame can use the following file types:
 # .wav, .midi, .mp3, and .ogg
 
-# pygame.mixer.Sound('filename') creates a Sound object. These can be called on to be
-# used later for sound effects or music calls
 # here we are initializing a Sound object called "pew" to use later
 pew = pygame.mixer.Sound('audio/sfx/laser5.wav')
 playerHit = pygame.mixer.Sound('audio/sfx/boom2.wav')
@@ -97,16 +96,18 @@ playerDead = pygame.mixer.Sound('audio/sfx/boom7.wav')
 # use mixer.music.load to load in the background music file
 pygame.mixer.music.load('audio/music/Space Fighter Loop.mp3')
 
-
 # The music.play will start the music. Run this before the loop, or else it will attempt to start
 # with every frame of the game. The first number is how many times it should be repeated. Set to -1 to
 # repeat indefinitely. the second is where the file should start in seconds
 # pygame.mixer.music.play(number of repeats, where to start (seconds)
+pygame.mixer.music.play(-1, 0)
+pygame.mixer.music.set_volume(.2)
 
 # save music file name to a variable for use later
 GameOver = 'audio/music/GameOver.mp3'
 
-# music by Kevin MacLeod and Argonaut Games
+# Music from Kevin MaCleod and Argonaut Games
+
 
 def gameOver(score):
     font = pygame.font.SysFont("none", 90)
@@ -123,7 +124,11 @@ def gameOver(score):
     textRect2.centery = windowSurface.get_rect().centery + 50
 
     # playback GameOver music
-
+    pygame.mixer.music.load(GameOver)
+    pygame.mixer.music.set_volume(.3)
+    pygame.mixer.music.play(0,0)
+    # The sound file is 8 seconds and ends abruptly, so lets fade it out at 7 seconds
+    pygame.mixer.music.fadeout(7000)
 
 
     while True:
@@ -226,6 +231,8 @@ while running:
         if targets[i].colliderect(player):
             targets[i].right = 0
             if collisionFrameCounter == 0:
+                # playback player hit sound
+                playerHit.play()
                 collisionFrameCounter = 30
                 maxLives -= 1
 
@@ -246,6 +253,8 @@ while running:
     # Add a projectile to the shots list, but limit to three shots at a time
     if shoot == True and (len(shots) < maxShots):
         if shotFrameCounter == 0:
+            # playback the shooting noise
+            pew.play()
             shotFrameCounter = 6
             shots.append(pygame.Rect(player.centerx - 3, player.centery - 3, 6, 6))
 
@@ -255,6 +264,8 @@ while running:
         shots[i].left += projectileSpeed
         for target in targets[:]:
             if shots[i].colliderect(target):
+                #playback target hit sound
+                targetHit.play()
                 shots[i].left = 800
                 targets.remove(target)
                 score += 1
@@ -283,6 +294,8 @@ while running:
 
     # if out of lives, end game
     if maxLives == 0:
+        # playback player dead sound
+        playerDead.play()
         running = False
         gameOver(score)
 
