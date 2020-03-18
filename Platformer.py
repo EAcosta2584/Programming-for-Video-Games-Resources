@@ -39,13 +39,17 @@ moveX = 4
 moveY = 0
 
 # Player setup
-player = pygame.Rect(width/2, 160, 20, 40)
+player = pygame.Rect(0, 160, 20, 40)
 # Player position Y setup
-posY = 200
+posY = height - 20
 
 # Platform setup
 platform0 = pygame.Rect(0, height - 20, width, 20)
-platformList = [platform0]
+platform1 = pygame.Rect(0, 200, 100, 20)
+platform2 = pygame.Rect(150, 250, 100, 20)
+platform3 = pygame.Rect(200, 400, 100, 20)
+platform4 = pygame.Rect(350, 325, 100, 20)
+platformList = [platform0, platform1, platform2, platform3, platform4]
 
 # Run the game loop.
 while True:
@@ -84,25 +88,46 @@ while True:
 
     # Set our movement when a direction is True
     if jump == True:
-        moveY = -10
+        # The player may only jump if they are touching a platform
+        if player.collidelist(platformList) > -1:
+            moveY = -10
     if moveLeft == True and player.left > 0:
         player.left -= moveX
     if moveRight == True and player.right < width:
         player.right += moveX
 
-    # If the player falls off screen, bring them to the top
-    if player.top > height:
-        posY = 0
-
     # Y position of the player is updated with the Y movement
     posY += moveY + (.5 * gravity)
     player.bottom = posY
 
-    print(posY)
+    # Checks for a collision with all platforms in the list and returns the index of the collision
+    colliPos = player.collidelist(platformList)
+
+    # if the player is falling, they can land on a platform
+    if moveY > 0:
+        # if the index is greater that -1, the player must be touching ground, else, they are falling
+        if colliPos > -1:
+            posY = platformList[colliPos].top + 1
+            moveY = 0
+    # if the player is jumping, they can't phase through the platform
+    elif moveY < 0:
+        if colliPos > -1:
+            posY = platformList[colliPos].bottom + 40
+            player.bottom = posY
+            moveY += gravity
+            jump = False
+
+    # If the player falls off screen, lose a life
+    if player.top > height:
+        lives -= 1
+        player.center = (0, 160)
 
     # Draw the player onto the surface.
     pygame.draw.rect(windowSurface, red, player)
 
+    # when out of lives, game over
+    if lives <= 0:
+        windowSurface.fill(black)
 
     # Draw the window onto the screen.
     pygame.display.update()
