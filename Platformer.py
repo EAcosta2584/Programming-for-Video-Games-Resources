@@ -1,11 +1,11 @@
 #################################################
 # File Name: Platformer.py
 # Creator Name: Mr. Acosta
-# Date Created: 1-14-2020
-# Date Modified: 1-15-2020
+# Date Created: 3-17-2020
+# Date Modified: 3-19-2020
 #################################################
 # This program will create a single screen platformer
-# ################################################
+#################################################
 
 import pygame, sys, time, random
 from pygame.locals import *
@@ -105,8 +105,26 @@ while True:
 
     # if the player is falling, they can land on a platform
     if moveY > 0:
+        # if the player hits the side of a platform while falling, stop their horizontal movement by
+        # keeping the player side and platform side the same.
+        if moveRight and player.bottom > platformList[colliPos].centery:
+            if colliPos > -1:
+                jump = False
+                moveRight = False
+                if platformList[colliPos].left <= 0:
+                    player.right = player.right
+                else:
+                    player.right = platformList[colliPos].left
+        elif moveLeft and player.bottom > platformList[colliPos].centery:
+            if colliPos > -1:
+                jump = False
+                moveLeft = False
+                if platformList[colliPos].right >= width:
+                    player.left = player.left
+                else:
+                    player.left = platformList[colliPos].right
         # if the index is greater that -1, the player must be touching ground, else, they are falling
-        if colliPos > -1:
+        elif colliPos > -1:
             posY = platformList[colliPos].top + 1
             moveY = 0
     # if the player is jumping, they can't phase through the platform
@@ -118,9 +136,9 @@ while True:
             jump = False
 
     # If the player falls off screen, lose a life
-    if player.top > height:
-        lives -= 1
-        player.center = (0, 160)
+    # if player.top > height:
+    #     lives -= 1
+    #     player.center = (0, 160)
 
     # Draw the player onto the surface.
     pygame.draw.rect(windowSurface, red, player)
