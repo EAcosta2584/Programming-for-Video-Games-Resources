@@ -126,6 +126,7 @@ while True:
         # if the index is greater that -1, the player must be touching ground, else, they are falling
         elif colliPos > -1:
             posY = platformList[colliPos].top + 1
+            player.bottom = posY
             moveY = 0
     # if the player is jumping, they can't phase through the platform
     elif moveY < 0:
@@ -138,7 +139,8 @@ while True:
     # If the player falls off screen, lose a life
     # if player.top > height:
     #     lives -= 1
-    #     player.center = (0, 160)
+    #     # place the player back at the start
+    #      player.midbottom = (0, height - 20)
 
     # Draw the player onto the surface.
     pygame.draw.rect(windowSurface, red, player)
