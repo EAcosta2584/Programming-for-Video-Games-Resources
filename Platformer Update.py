@@ -127,10 +127,33 @@ while True:
             moveY += gravity
             jump = False
 
+    # When the player reaches the top quarter of the screen, move the platforms down
+    if player.bottom <= height/4:
+        for platform in platformList:
+            platform.top = platform.top + 8
+
+    # remove platforms that fall off screen and add new ones to the top.
+    for platform in platformList:
+        if platform.top > height:
+            platWidth = random.choice(platW)
+            platLeft = abs(random.randint(0, width - platWidth))
+            platTop = -20
+            platformList.append(pygame.Rect(platLeft, platTop, platWidth, platH))
+            platformList.remove(platform)
+
+
+    # If the player falls off screen, lose a life and place the player on lowest block
+    if player.top >= height:
+        posY = platformList[0].top
+        player.centerx = platformList[0].centerx
+        lives -= 1
 
     # Draw the player onto the surface.
     pygame.draw.rect(windowSurface, red, player)
 
+    # when out of lives, game over
+    if lives <= 0:
+        windowSurface.fill(black)
 
     # Draw the window onto the screen.
     pygame.display.update()
